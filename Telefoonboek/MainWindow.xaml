@@ -23,8 +23,26 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <ListBox>
+        <ListBox ItemsSource="{Binding TelephoneBookItems}" SelectedItem="{Binding SelectedItem}">
 
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Content="{Binding Firstname}" />
+                        <Label Content="{Binding Lastname}" Grid.Column="1"/>
+                        <Label Content="{Binding PhoneNumber}" Grid.Row="1"/>
+                        <Label Content="{Binding Email}" Grid.Row="1" Grid.Column="1"/>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
         </ListBox>
 
         <Grid Grid.Column="1">
@@ -41,16 +59,16 @@
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
 
-            <Label Content="Familienaam:"/>
-            <Label Content="Voornaam:"  Grid.Row="1"/>
-            <Label Content="Telefoonnummer:"  Grid.Row="2"/>
-            <Label Content="E-mail:" Grid.Row="3"/>
-            <Button Content="Opslaan" Grid.Row="4" Grid.ColumnSpan="2"/>
+            <Label Content="naam:"/>
+            <Label Content="voornaam:"  Grid.Row="1"/>
+            <Label Content="telefoonnummer:"  Grid.Row="2"/>
+            <Label Content="email:" Grid.Row="3"/>
+            <Button Content="Opslaan" Grid.Row="4" Grid.ColumnSpan="2" Command="{Binding SaveCommand}"/>
 
-            <TextBox Grid.Row="0" Grid.Column="1"/>
-            <TextBox Grid.Row="1" Grid.Column="1"/>
-            <TextBox Grid.Row="2" Grid.Column="1"/>
-            <TextBox Grid.Row="3" Grid.Column="1"/>
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FirstName}"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding PhoneNumber}"/>
+            <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Email}"/>
         </Grid>
         
     </Grid>
