@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace Telefoonboek
 {
-    internal class MainViewModel: INotifyPropertyChanged
+    internal class MainViewModel : INotifyPropertyChanged
     {
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -13,404 +14,165 @@ namespace Telefoonboek
         private string firstname;
         private string email;
         private string phoneNumber;
+        private ObservableCollection<PhoneBookItem> phoneBookItems = new ObservableCollection<PhoneBookItem>();
+        private PhoneBookItem selectedItem;
 
         public string Lastname
         {
             get { return lastname; }
-            set { lastname = value; }
+            set
+            {
+                lastname = value;
+                OnPropertyChanged();
+                CheckSaveButtonAvailablity();
+            }
         }
 
         public string Firstname
         {
             get { return firstname; }
-            set { firstname = value; }
+            set
+            {
+                firstname = value;
+                OnPropertyChanged();
+                CheckSaveButtonAvailablity();
+            }
         }
 
         public string Email
         {
             get { return email; }
-            set { email = value; }
+            set
+            {
+                email = value;
+                OnPropertyChanged();
+                CheckSaveButtonAvailablity();
+            }
         }
 
         public string PhoneNumber
         {
             get { return phoneNumber; }
-            set { phoneNumber = value; }
+            set
+            {
+                phoneNumber = value;
+                OnPropertyChanged();
+                CheckSaveButtonAvailablity();
+            }
         }
+
+        public PhoneBookItem SelectedItem
+        {
+            get { return selectedItem; }
+            set
+            {
+                selectedItem = value;
+                if (selectedItem != null)
+                {
+                    FillTextBoxes(selectedItem);
+                }
+                else
+                {
+                    ResetProperties();
+                }
+                OnPropertyChanged();
+                CheckDeleteButtonAvailablity();
+            }
+        }
+
+        private bool saveButtonEnabled;
+        private bool deleteButtonEnabled;
+
+        public bool SaveButtonEnabled
+        {
+            get { return saveButtonEnabled; }
+            private set
+            {
+                saveButtonEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool DeleteButtonEnabled
+        {
+            get { return deleteButtonEnabled; }
+            private set
+            {
+                deleteButtonEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
 
         public ICommand SaveCommand { get; set; }
         public ICommand DeleteCommand { get; set; }
 
+        public ObservableCollection<PhoneBookItem> PhoneBookItems { get => phoneBookItems; set => phoneBookItems = value; }
+
         public MainViewModel()
         {
             SaveCommand = new ActionCommand(SaveCommandAction);
             DeleteCommand = new ActionCommand(DeleteCommandAction);
         }
 
+        private void FillTextBoxes(PhoneBookItem item)
+        {
+            Lastname = item.Lastname;
+            Firstname = item.Firstname;
+            Email = item.Email;
+            PhoneNumber = item.PhoneNumber;
+        }
+
         private void SaveCommandAction()
         {
+            if (SelectedItem == null)
+            {
+                PhoneBookItems.Add(new PhoneBookItem(Lastname, Firstname, Email, PhoneNumber));
+                ResetProperties();
+            }
+            else
+            {
+                SelectedItem.Lastname = Lastname;
+                SelectedItem.Firstname = Firstname;
+                SelectedItem.Email = Email;
+                SelectedItem.PhoneNumber = PhoneNumber;
 
+                SelectedItem = null; // deselecteren van item.
+            }
+        }
+
+        private void ResetProperties()
+        {
+            Lastname = null;
+            Firstname = null;
+            Email = null;
+            PhoneNumber = null;
         }
 
         private void DeleteCommandAction()
         {
-
+            PhoneBookItems.Remove(SelectedItem);
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if(PropertyChanged != null)
+            if (PropertyChanged != null)
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
-        } 
-        {
-            get => saveButtonEnabled;
-            private set
-            {
-                saveButtonEnabled = value;
-                OnPropertyChanged();
-            }
         }
 
-        private void CheckSaveButtonEnabled()
+        private void CheckSaveButtonAvailablity()
         {
-            SaveButtonEnabled = (Lastname != null && FirstName != null && (email != null || phoneNumber != null));
+            SaveButtonEnabled = (Lastname != null && Lastname != "") && (Firstname != null && Firstname != "") && ((Email != null && Email != "") || (PhoneNumber != null && PhoneNumber != ""));
         }
 
-
-        public bool DeleteButtonEnabled
+        private void CheckDeleteButtonAvailablity()
         {
-            get => deleteButtonEnabled;
-            private set
-            {
-                deleteButtonEnabled = value;
-                OnPropertyChanged();
-            }
+            DeleteButtonEnabled = SelectedItem != null;    
         }
 
-        public TelephoneBookItem SelectedItem
-        {
-            get => selectedItem;
-            set
-            {
-                selectedItem = value;
-                DeleteButtonEnabled = SelectedItem != null;
-                if (SelectedItem == null)
-                {
-                    Lastname = null;
-                    FirstName = null;
-                    Email = null;
-                    PhoneNumber = null;
-
-                }
-                else
-                {
-                    Lastname = SelectedItem.Lastname;
-                    FirstName = SelectedItem.Firstname;
-                    Email = SelectedItem.Email;
-                    PhoneNumber = SelectedItem.PhoneNumber;
-
-                }
-                OnPropertyChanged();
-            }
-        }
-        public MainViewModel()
-        {
-            SaveCommand = new ActionCommand(SaveCommandAction);
-            DeleteCommand = new ActionCommand(DeleteCommandAction);
-
-        }
-
-        private void SaveCommandAction()
-        {
-            if (SelectedItem==null)
-            {
-                TelephoneBookItem telephoneBookItem = new TelephoneBookItem(Lastname, FirstName, PhoneNumber, Email);
-                TelephoneBookItems.Add(telephoneBookItem);
-            } else
-            {
-                SelectedItem.Lastname = Lastname;
-                SelectedItem.Email = Email;
-                SelectedItem.PhoneNumber = PhoneNumber;
-                SelectedItem.Firstname = FirstName;
-            }
-
-            SelectedItem = null;
-        }
-
-        private void DeleteCommandAction()
-        {
-            TelephoneBookItems.Remove(SelectedItem);
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string property = null)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
-        {
-            get => saveButtonEnabled;
-            private set
-            {
-                saveButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void CheckSaveButtonEnabled()
-        {
-            SaveButtonEnabled = (Lastname != null && FirstName != null && (email != null || phoneNumber != null));
-        }
-
-
-        public bool DeleteButtonEnabled
-        {
-            get => deleteButtonEnabled;
-            private set
-            {
-                deleteButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TelephoneBookItem SelectedItem
-        {
-            get => selectedItem;
-            set
-            {
-                selectedItem = value;
-                DeleteButtonEnabled = SelectedItem != null;
-                if (SelectedItem == null)
-                {
-                    Lastname = null;
-                    FirstName = null;
-                    Email = null;
-                    PhoneNumber = null;
-
-                }
-                else
-                {
-                    Lastname = SelectedItem.Lastname;
-                    FirstName = SelectedItem.Firstname;
-                    Email = SelectedItem.Email;
-                    PhoneNumber = SelectedItem.PhoneNumber;
-
-                }
-                OnPropertyChanged();
-            }
-        }
-        public MainViewModel()
-        {
-            SaveCommand = new ActionCommand(SaveCommandAction);
-            DeleteCommand = new ActionCommand(DeleteCommandAction);
-
-        }
-
-        private void SaveCommandAction()
-        {
-            if (SelectedItem==null)
-            {
-                TelephoneBookItem telephoneBookItem = new TelephoneBookItem(Lastname, FirstName, PhoneNumber, Email);
-                TelephoneBookItems.Add(telephoneBookItem);
-            } else
-            {
-                SelectedItem.Lastname = Lastname;
-                SelectedItem.Email = Email;
-                SelectedItem.PhoneNumber = PhoneNumber;
-                SelectedItem.Firstname = FirstName;
-            }
-
-            SelectedItem = null;
-        }
-
-        private void DeleteCommandAction()
-        {
-            TelephoneBookItems.Remove(SelectedItem);
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string property = null)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
-        {
-            get => saveButtonEnabled;
-            private set
-            {
-                saveButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void CheckSaveButtonEnabled()
-        {
-            SaveButtonEnabled = (Lastname != null && FirstName != null && (email != null || phoneNumber != null));
-        }
-
-
-        public bool DeleteButtonEnabled
-        {
-            get => deleteButtonEnabled;
-            private set
-            {
-                deleteButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TelephoneBookItem SelectedItem
-        {
-            get => selectedItem;
-            set
-            {
-                selectedItem = value;
-                DeleteButtonEnabled = SelectedItem != null;
-                if (SelectedItem == null)
-                {
-                    Lastname = null;
-                    FirstName = null;
-                    Email = null;
-                    PhoneNumber = null;
-
-                }
-                else
-                {
-                    Lastname = SelectedItem.Lastname;
-                    FirstName = SelectedItem.Firstname;
-                    Email = SelectedItem.Email;
-                    PhoneNumber = SelectedItem.PhoneNumber;
-
-                }
-                OnPropertyChanged();
-            }
-        }
-        public MainViewModel()
-        {
-            SaveCommand = new ActionCommand(SaveCommandAction);
-            DeleteCommand = new ActionCommand(DeleteCommandAction);
-
-        }
-
-        private void SaveCommandAction()
-        {
-            if (SelectedItem==null)
-            {
-                TelephoneBookItem telephoneBookItem = new TelephoneBookItem(Lastname, FirstName, PhoneNumber, Email);
-                TelephoneBookItems.Add(telephoneBookItem);
-            } else
-            {
-                SelectedItem.Lastname = Lastname;
-                SelectedItem.Email = Email;
-                SelectedItem.PhoneNumber = PhoneNumber;
-                SelectedItem.Firstname = FirstName;
-            }
-
-            SelectedItem = null;
-        }
-
-        private void DeleteCommandAction()
-        {
-            TelephoneBookItems.Remove(SelectedItem);
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string property = null)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
-        {
-            get => saveButtonEnabled;
-            private set
-            {
-                saveButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private void CheckSaveButtonEnabled()
-        {
-            SaveButtonEnabled = (Lastname != null && FirstName != null && (email != null || phoneNumber != null));
-        }
-
-
-        public bool DeleteButtonEnabled
-        {
-            get => deleteButtonEnabled;
-            private set
-            {
-                deleteButtonEnabled = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TelephoneBookItem SelectedItem
-        {
-            get => selectedItem;
-            set
-            {
-                selectedItem = value;
-                DeleteButtonEnabled = SelectedItem != null;
-                if (SelectedItem == null)
-                {
-                    Lastname = null;
-                    FirstName = null;
-                    Email = null;
-                    PhoneNumber = null;
-
-                }
-                else
-                {
-                    Lastname = SelectedItem.Lastname;
-                    FirstName = SelectedItem.Firstname;
-                    Email = SelectedItem.Email;
-                    PhoneNumber = SelectedItem.PhoneNumber;
-
-                }
-                OnPropertyChanged();
-            }
-        }
-        public MainViewModel()
-        {
-            SaveCommand = new ActionCommand(SaveCommandAction);
-            DeleteCommand = new ActionCommand(DeleteCommandAction);
-
-        }
-
-        private void SaveCommandAction()
-        {
-            if (SelectedItem==null)
-            {
-                TelephoneBookItem telephoneBookItem = new TelephoneBookItem(Lastname, FirstName, PhoneNumber, Email);
-                TelephoneBookItems.Add(telephoneBookItem);
-            } else
-            {
-                SelectedItem.Lastname = Lastname;
-                SelectedItem.Email = Email;
-                SelectedItem.PhoneNumber = PhoneNumber;
-                SelectedItem.Firstname = FirstName;
-            }
-
-            SelectedItem = null;
-        }
-
-        private void DeleteCommandAction()
-        {
-            TelephoneBookItems.Remove(SelectedItem);
-        }
-
-        private void OnPropertyChanged([CallerMemberName] string property = null)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(property));
-            }
-        }
     }
 }
