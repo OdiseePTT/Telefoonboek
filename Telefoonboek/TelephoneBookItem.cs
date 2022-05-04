@@ -1,29 +1,71 @@
-﻿namespace Telefoonboek
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+
+namespace Telefoonboek
 {
-    internal class TelephoneBookItem
+    internal class TelephoneBookItem : INotifyPropertyChanged
     {
-        private string name;
+        private string lastname;
         private string firstname;
         private string phoneNumber;
         private string email;
 
-        public TelephoneBookItem(string name, string firstname, string phoneNumber, string email)
+        public TelephoneBookItem(string lastname, string firstname, string phoneNumber, string email)
         {
-            Name = name;
+            Lastname = lastname;
             Firstname = firstname;
             PhoneNumber = phoneNumber;
             Email = email;
         }
 
-        public string Name { get => name; private set => name = value; }
-        public string Firstname { get => firstname; private set => firstname = value; }
-        public string PhoneNumber { get => phoneNumber; private set => phoneNumber = value; }
-        public string Email { get => email; private set => email = value; }
+        public string Lastname
+        {
+            get => lastname;
+            set
+            {
+                lastname = value;
+                OnPropertyChanged();
+            }
+        }
+        public string Firstname
+        {
+            get => firstname; set
+            {
+                firstname = value;
+                OnPropertyChanged();
+            }
+        }
+        public string PhoneNumber
+        {
+            get => phoneNumber; set
+            {
+                phoneNumber = value;
+                OnPropertyChanged();
+            }
+        }
 
+        public string Email
+        {
+            get => email; set
+            {
+                email = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string property = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(property));
+            }
+        }
 
         public override string ToString()
         {
-            return $"{name} {firstname}" ;
+            return $"{lastname} {firstname}";
         }
     }
 }

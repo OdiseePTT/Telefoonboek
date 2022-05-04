@@ -3,12 +3,12 @@ using System.Windows.Input;
 
 namespace Telefoonboek
 {
-    internal class MyCommand : ICommand
+    internal class ActionCommand : ICommand
     {
         public event EventHandler CanExecuteChanged;
         public Action action;
 
-        public MyCommand(Action action)
+        public ActionCommand(Action action)
         {
             this.action = action;
         }
